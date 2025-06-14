@@ -1,0 +1,22 @@
+menu "Keyball61 Shield Options"
+
+
+config ZMK_MY_KSCAN_MATRIX_POLLING
+    bool "Poll for key event triggers instead of using interrupts on matrix boards."
+
+config ZMK_MY_KSCAN_DIRECT_POLLING
+    bool "Poll for key event triggers instead of using interrupts on direct wired boards."
+
+config ZMK_MY_KSCAN_DEBOUNCE_PRESS_MS
+    int "Debounce press time for my_kscan (ms)"
+    default 5
+    help
+      Debounce time in milliseconds for key press events in my_kscan.
+
+config ZMK_MY_KSCAN_DEBOUNCE_RELEASE_MS
+    int "Debounce release time for my_kscan (ms)"
+    default 5
+    help
+      Debounce time in milliseconds for key release events in my_kscan.
+
+endmenu
