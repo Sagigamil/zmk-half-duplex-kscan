@@ -51,9 +51,11 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 #define COND_POLL_OR_INTERRUPTS(pollcode, intcode)                                                 \
     COND_CODE_1(CONFIG_ZMK_MY_KSCAN_MATRIX_POLLING, pollcode, intcode)
 
-#define KSCAN_GPIO_ROW_CFG_INIT(idx, inst_idx) { KSCAN_GPIO_GET_BY_IDX(DT_DRV_INST(inst_idx), row_gpios, idx) }
-#define KSCAN_GPIO_COL_CFG_INIT(idx, inst_idx) { KSCAN_GPIO_GET_BY_IDX(DT_DRV_INST(inst_idx), col_gpios, idx) }
-
+#define KSCAN_GPIO_ROW_CFG_INIT(idx, inst_idx)                                                     \
+    KSCAN_GPIO_GET_BY_IDX(DT_DRV_INST(inst_idx), row_gpios, idx)
+#define KSCAN_GPIO_COL_CFG_INIT(idx, inst_idx)                                                     \
+    KSCAN_GPIO_GET_BY_IDX(DT_DRV_INST(inst_idx), col_gpios, idx)
+    
 enum kscan_diode_direction {
     KSCAN_ROW2COL,
     KSCAN_COL2ROW,
@@ -94,16 +96,16 @@ struct kscan_matrix_config {
 
 
 int my_kscan_gpio_pin_get(const struct kscan_gpio *gpio, struct kscan_gpio_port_state *state) {
-if (gpio->spec.port != state->port) {
-    state->port = gpio->spec.port;
+    if (gpio->spec.port != state->port) {
+        state->port = gpio->spec.port;
 
-    const int err = gpio_port_get(state->port, &state->value);
-    if (err) {
-        return err;
+        const int err = gpio_port_get(state->port, &state->value);
+        if (err) {
+            return err;
+        }
     }
-}
 
-return (state->value & BIT(gpio->spec.pin)) != 0;
+    return (state->value & BIT(gpio->spec.pin)) != 0;
 }
 
 #if USE_INTERRUPTS
@@ -122,7 +124,7 @@ static int kscan_matrix_interrupt_configure(const struct device *dev, const gpio
 
     return 0;
 }
-#endif
+#endif 
 
 #if USE_INTERRUPTS
 static int kscan_matrix_interrupt_enable(const struct device *dev) {
@@ -227,9 +229,11 @@ static int kscan_matrix_read(const struct device *dev) {
     struct kscan_gpio_list *cols = &data->outputs;
 
     const size_t MATRIX_COLS = config->cols * 2; // Split keyboard matrix
-
+    LOG_INF("Scanning matrix %s with %zu rows and %zu cols", dev->name, rows->len,
+            cols->len);
     // Scan the matrix.
     for (int row = 0; row < rows->len; row++) {
+        LOG_INF("Scanning row %i", row);
         const struct kscan_gpio *row_gpio = &rows->gpios[row];
         int err = kscan_matrix_init_output_inst(dev, &row_gpio->spec);
         if (err) {
@@ -468,7 +472,8 @@ static int kscan_matrix_disconnect(const struct device *dev) {
 
 static void kscan_matrix_setup_pins(const struct device *dev) { kscan_matrix_init_pins(dev); }
 
-static int kscan_matrix_init(const struct device *dev) {
+static int my_kscan_matrix_init(const struct device *dev) {
+    LOG_INF("Initializing kscan matrix %s", dev->name);
     struct kscan_matrix_data *data = dev->data;
 
     data->dev = dev;
@@ -556,7 +561,7 @@ static const struct kscan_driver_api kscan_matrix_api = {
                                                                                                 \
     PM_DEVICE_DT_INST_DEFINE(n, kscan_matrix_pm_action);                                           \
                                                                                                 \
-    DEVICE_DT_INST_DEFINE(n, &kscan_matrix_init, PM_DEVICE_DT_INST_GET(n), &kscan_matrix_data_##n, \
+    DEVICE_DT_INST_DEFINE(n, &my_kscan_matrix_init, PM_DEVICE_DT_INST_GET(n), &kscan_matrix_data_##n, \
                         &kscan_matrix_config_##n, POST_KERNEL, CONFIG_KSCAN_INIT_PRIORITY,       \
                         &kscan_matrix_api);
 

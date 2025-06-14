@@ -32,5 +32,7 @@ void my_kscan_gpio_list_sort_by_port(struct kscan_gpio_list *list) {
 
 int my_kscan_gpio_pin_get(const struct kscan_gpio *gpio, struct kscan_gpio_port_state *state);
 
-#define KSCAN_GPIO_GET_BY_IDX(node_id, prop, idx) { 0 }
-#define KSCAN_GPIO_LIST(list) { 0 }
+#define KSCAN_GPIO_GET_BY_IDX(node_id, prop, idx)                                                  \
+    ((struct kscan_gpio){.spec = GPIO_DT_SPEC_GET_BY_IDX(node_id, prop, idx), .index = idx})
+#define KSCAN_GPIO_LIST(gpio_array)                                                                \
+    ((struct kscan_gpio_list){.gpios = gpio_array, .len = ARRAY_SIZE(gpio_array)})
