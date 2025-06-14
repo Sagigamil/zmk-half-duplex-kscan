@@ -1,5 +1,12 @@
 menu "Keyball61 Shield Options"
 
+config ZMK_MY_KSCAN_DRIVER_ENABLE
+	bool "Enable my_kscan driver"
+    default y
+    select ZMK_DEBOUNCE
+    select ZMK_KSCAN_GPIO_DRIVER
+    select KSCAN_GPIO
+
 
 config ZMK_MY_KSCAN_MATRIX_POLLING
     bool "Poll for key event triggers instead of using interrupts on matrix boards."
@@ -18,5 +25,6 @@ config ZMK_MY_KSCAN_DEBOUNCE_RELEASE_MS
     default 5
     help
       Debounce time in milliseconds for key release events in my_kscan.
+
 
 endmenu

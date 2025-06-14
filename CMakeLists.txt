@@ -1,3 +1,3 @@
 zephyr_library()
 
-zephyr_library_sources_ifdef(CONFIG_PMW3610 src/my_scan.c)
+zephyr_library_sources(src/my_kscan.c)
